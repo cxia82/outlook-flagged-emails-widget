@@ -1,6 +1,6 @@
 # NotificationWidget
 
-A simple Windows desktop notification widget that appears at the top-right corner of the screen.
+A simple Windows desktop notification widget that lists flagged emails in outlook.
 
 ## Files
 
@@ -16,8 +16,6 @@ A simple Windows desktop notification widget that appears at the top-right corne
 
 ## Behavior
 
-- The window is borderless and transparent.
-- It is positioned in the top-right corner of the primary work area.
-- The app fetches flagged email items from the Outlook Inbox and lists them in the widget.
+- It is positioned in the top-right corner of the primary work area by default.  You can toggle and move to any position.
+- The app fetches flagged email items from the Outlook Inbox out of most recent 500 emails and lists them in the widget.
 - The widget refreshes flagged Outlook emails automatically every minute.
-- The notification automatically closes after 10 minutes.
