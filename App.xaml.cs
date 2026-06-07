@@ -11,13 +11,16 @@ namespace NotificationWidget
         {
             base.OnStartup(e);
 
-            _trayIcon = new System.Windows.Forms.NotifyIcon
-            {
-                Icon = new System.Drawing.Icon(
-                    System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico")),
-                Text = "Flagged Emails",
-                Visible = true
-            };
+            var mainWindow = new MainWindow();
+            MainWindow = mainWindow;
+
+            _trayIcon = new System.Windows.Forms.NotifyIcon();
+            var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
+            if (System.IO.File.Exists(iconPath))
+                _trayIcon.Icon = new System.Drawing.Icon(iconPath);
+
+            _trayIcon.Text = "Flagged Emails";
+            _trayIcon.Visible = true;
 
             var menu = new System.Windows.Forms.ContextMenuStrip();
             menu.Items.Add("Show / Hide", null, (s, ev) => ToggleWindow());
@@ -25,7 +28,8 @@ namespace NotificationWidget
             _trayIcon.ContextMenuStrip = menu;
             _trayIcon.DoubleClick += (s, ev) => ToggleWindow();
 
-            MainWindow?.Show();
+            mainWindow.Show();
+            mainWindow.Activate();
         }
 
         private void ToggleWindow()
@@ -35,6 +39,8 @@ namespace NotificationWidget
                 MainWindow.Hide();
             else
             {
+                if (MainWindow.WindowState == WindowState.Minimized)
+                    MainWindow.WindowState = WindowState.Normal;
                 MainWindow.Show();
                 MainWindow.Activate();
             }

@@ -14,7 +14,8 @@ namespace NotificationWidget
             {
                 var type = Type.GetTypeFromProgID("Outlook.Application");
                 if (type == null) return;
-                dynamic outlook = Activator.CreateInstance(type)!;
+                dynamic? outlook = Activator.CreateInstance(type);
+                if (outlook == null) return;
                 dynamic mail = outlook.GetNamespace("MAPI").GetItemFromID(entryId, storeId);
                 mail.Display(false);
             }
@@ -31,6 +32,7 @@ namespace NotificationWidget
                 if (type == null) return results;
 
                 outlook = Activator.CreateInstance(type);
+                if (outlook == null) return results;
                 dynamic ns = outlook.GetNamespace("MAPI");
                 ns.Logon(Type.Missing, Type.Missing, false, true);
                 dynamic inbox = ns.GetDefaultFolder(6);

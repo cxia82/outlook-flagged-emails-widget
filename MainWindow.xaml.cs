@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace NotificationWidget
@@ -11,6 +13,11 @@ namespace NotificationWidget
         public MainWindow()
         {
             InitializeComponent();
+
+            var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
+            if (File.Exists(iconPath))
+                Icon = BitmapFrame.Create(new Uri(iconPath, UriKind.Absolute));
+
             _refreshTimer.Interval = TimeSpan.FromMinutes(1);
             _refreshTimer.Tick += (s, e) => RefreshFlaggedItems();
         }

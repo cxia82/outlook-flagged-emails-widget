@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:NotificationWidget"
         Title="🚩 Flagged Emails"
-        Icon="app.ico"
         WindowStyle="None"
         AllowsTransparency="False"
         Background="#DD242424"
@@ -32,9 +31,9 @@
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Margin="0,4,0,4">
-                            <local:TwoLineEllipsisTextBlock Text="{Binding Subject}" FontWeight="SemiBold" Foreground="White" FontSize="13"/>
-                            <TextBlock Text="{Binding Sender}" Foreground="#FFAAAAAA" FontSize="11" Margin="0,2,0,0"/>
+                        <StackPanel Margin="0,2,0,2">
+                            <local:TwoLineEllipsisTextBlock Text="{Binding Subject}" FontWeight="SemiBold" Foreground="White" FontSize="12"/>
+                            <TextBlock Text="{Binding Sender}" Foreground="#FFAAAAAA" FontSize="11" Margin="0,1,0,0"/>
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
