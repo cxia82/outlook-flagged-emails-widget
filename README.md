@@ -25,7 +25,6 @@ A lightweight WPF desktop widget for Windows that displays your flagged Outlook 
 ## Requirements
 
 - Windows 10/11
-- [.NET 7 Runtime](https://dotnet.microsoft.com/download/dotnet/7.0) (Desktop Runtime)
 - Microsoft Outlook desktop app (must be installed and running)
 
 ---
@@ -33,8 +32,11 @@ A lightweight WPF desktop widget for Windows that displays your flagged Outlook 
 ## Installation
 
 1. Download the latest release from the [Releases](https://github.com/cxia82/outlook-flagged-emails-widget/releases) page
-2. Extract and run `NotificationWidget.exe`
-3. Authenticate with Windows Hello or your Windows password when prompted (McKinsey corporate security policy)
+2. Extract `FlaggedEmailsWidgetInstaller-win-x64.zip`
+3. Run `install.cmd`
+4. Launch the app from the desktop shortcut `Flagged Emails`
+
+For installer details and custom packaging steps, see [installer/README.md](installer/README.md).
 
 ---
 
