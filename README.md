@@ -1,10 +1,21 @@
 # Outlook Flagged Emails Widget
 
-**Version 1.0**
+**Version 1.1**
 
 A lightweight WPF desktop widget for Windows that displays your flagged Outlook emails in a floating window. It connects directly to your running Outlook application — no credentials, no Azure app registration required.
 
 ![Widget screenshot](https://github.com/cxia82/outlook-flagged-emails-widget/raw/master/docs/screenshot.png)
+
+---
+
+## What's New Since v1.0
+
+- ✅ **Installer package added** — users can now install with `install.cmd` from the release zip.
+- ✅ **Self-contained distribution** — no separate .NET runtime install required for end users.
+- ✅ **Startup reliability improvements** — fixed desktop/startup launch edge cases and startup command handling.
+- ✅ **Faster perceived startup** — window appears quickly while Outlook refresh runs asynchronously.
+- ✅ **Rendering optimization** — reduced repeated text layout work in subject rendering.
+- ✅ **Operational logging** — added startup timing logs to help troubleshoot launch performance.
 
 ---
 
@@ -45,10 +56,24 @@ For installer details and custom packaging steps, see [installer/README.md](inst
 ```bash
 git clone https://github.com/cxia82/outlook-flagged-emails-widget.git
 cd outlook-flagged-emails-widget
-dotnet publish -c Release -r win-x64 --self-contained false -o publish
+dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true -o publish
 ```
 
 Then run `publish\NotificationWidget.exe`.
+
+---
+
+## Build Installer Package
+
+```cmd
+installer\Build-Installer.cmd
+```
+
+Output package:
+
+- `installer\dist\FlaggedEmailsWidgetInstaller-win-x64.zip`
+
+This package is ready to share with Windows users.
 
 ---
 
