@@ -9,6 +9,9 @@ namespace NotificationWidget
 {
     public class TwoLineEllipsisTextBlock : WpfControl
     {
+        private FormattedText? _cachedFormattedText;
+        private double _cachedMaxWidth = -1;
+
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register(
                 nameof(Text), typeof(string), typeof(TwoLineEllipsisTextBlock),
@@ -25,7 +28,7 @@ namespace NotificationWidget
         protected override WpfSize MeasureOverride(WpfSize constraint)
         {
             double width = double.IsInfinity(constraint.Width) ? 1000 : Math.Max(0, constraint.Width);
-            var ft = CreateFormattedText(width);
+            var ft = GetOrCreateFormattedText(width);
             return new WpfSize(Math.Min(width, ft.Width), ft.Height);
         }
 
@@ -33,7 +36,42 @@ namespace NotificationWidget
         {
             base.OnRender(drawingContext);
             if (ActualWidth > 0)
-                drawingContext.DrawText(CreateFormattedText(ActualWidth), new WpfPoint(0, 0));
+                drawingContext.DrawText(GetOrCreateFormattedText(ActualWidth), new WpfPoint(0, 0));
+        }
+
+        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+        {
+            base.OnPropertyChanged(e);
+
+            if (e.Property == TextProperty ||
+                e.Property == FontFamilyProperty ||
+                e.Property == FontStyleProperty ||
+                e.Property == FontWeightProperty ||
+                e.Property == FontStretchProperty ||
+                e.Property == FontSizeProperty ||
+                e.Property == ForegroundProperty ||
+                e.Property == FlowDirectionProperty)
+            {
+                InvalidateFormattedTextCache();
+            }
+        }
+
+        private FormattedText GetOrCreateFormattedText(double maxWidth)
+        {
+            double normalizedWidth = Math.Max(1, maxWidth);
+
+            if (_cachedFormattedText != null && Math.Abs(_cachedMaxWidth - normalizedWidth) < 0.1)
+                return _cachedFormattedText;
+
+            _cachedMaxWidth = normalizedWidth;
+            _cachedFormattedText = CreateFormattedText(normalizedWidth);
+            return _cachedFormattedText;
+        }
+
+        private void InvalidateFormattedTextCache()
+        {
+            _cachedFormattedText = null;
+            _cachedMaxWidth = -1;
         }
 
         private FormattedText CreateFormattedText(double maxWidth)

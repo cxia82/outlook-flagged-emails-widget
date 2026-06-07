@@ -10,6 +10,7 @@ namespace NotificationWidget
         protected override void OnStartup(System.Windows.StartupEventArgs e)
         {
             base.OnStartup(e);
+            StartupPerfLog.Write("App OnStartup begin");
 
             var mainWindow = new MainWindow();
             MainWindow = mainWindow;
@@ -30,6 +31,7 @@ namespace NotificationWidget
 
             mainWindow.Show();
             mainWindow.Activate();
+            StartupPerfLog.Write("Main window shown and activated");
         }
 
         private void ToggleWindow()

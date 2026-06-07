@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,13 +12,23 @@ namespace NotificationWidget
     {
         private readonly DispatcherTimer _refreshTimer = new();
         private bool _isRefreshing;
+        private bool _firstRenderLogged;
 
         public MainWindow()
         {
             InitializeComponent();
 
+            ContentRendered += MainWindow_ContentRendered;
+
             _refreshTimer.Interval = TimeSpan.FromMinutes(1);
             _refreshTimer.Tick += async (s, e) => await RefreshFlaggedItemsAsync();
+        }
+
+        private void MainWindow_ContentRendered(object? sender, EventArgs e)
+        {
+            if (_firstRenderLogged) return;
+            _firstRenderLogged = true;
+            StartupPerfLog.Write("Main window first render completed");
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -35,6 +46,7 @@ namespace NotificationWidget
         {
             if (_isRefreshing) return;
             _isRefreshing = true;
+            var refreshStopwatch = Stopwatch.StartNew();
 
             try
             {
@@ -43,10 +55,12 @@ namespace NotificationWidget
                 FlaggedItemsList.ItemsSource = count > 0 ? flaggedItems : null;
                 TitleText.Text = count > 0 ? $"🚩 ({count}) Flagged Emails" : "🚩 Flagged Emails";
                 StatusText.Text = count > 0 ? $"Updated {DateTime.Now:t}." : $"No flagged emails. Checked {DateTime.Now:t}.";
+                StartupPerfLog.Write($"Refresh complete in {refreshStopwatch.ElapsedMilliseconds}ms (items={count})");
             }
             catch (Exception ex)
             {
                 StatusText.Text = $"Error: {ex.Message}";
+                StartupPerfLog.Write($"Refresh failed in {refreshStopwatch.ElapsedMilliseconds}ms ({ex.GetType().Name})");
             }
             finally
             {
