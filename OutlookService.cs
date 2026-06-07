@@ -12,16 +12,29 @@ namespace NotificationWidget
     {
         public static void OpenEmail(string entryId, string storeId)
         {
+            dynamic? outlook = null;
+            dynamic? ns = null;
+            dynamic? mail = null;
             try
             {
                 var type = Type.GetTypeFromProgID("Outlook.Application");
                 if (type == null) return;
-                dynamic? outlook = Activator.CreateInstance(type);
+                outlook = Activator.CreateInstance(type);
                 if (outlook == null) return;
-                dynamic mail = outlook.GetNamespace("MAPI").GetItemFromID(entryId, storeId);
+                ns = outlook.GetNamespace("MAPI");
+                mail = ns.GetItemFromID(entryId, storeId);
                 mail.Display(false);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                StartupPerfLog.Write($"OpenEmail failed ({ex.GetType().Name})");
+            }
+            finally
+            {
+                ReleaseComObjectSafe(mail);
+                ReleaseComObjectSafe(ns);
+                ReleaseComObjectSafe(outlook);
+            }
         }
 
         public static List<FlaggedEmail> GetFlaggedEmails()
@@ -39,6 +52,9 @@ namespace NotificationWidget
             var results = new List<FlaggedEmail>();
             int unreadCount = 0;
             dynamic? outlook = null;
+            dynamic? ns = null;
+            dynamic? inbox = null;
+            dynamic? items = null;
             try
             {
                 var type = Type.GetTypeFromProgID("Outlook.Application");
@@ -46,20 +62,21 @@ namespace NotificationWidget
 
                 outlook = Activator.CreateInstance(type);
                 if (outlook == null) return new InboxSummary(results, unreadCount);
-                dynamic ns = outlook.GetNamespace("MAPI");
+                ns = outlook.GetNamespace("MAPI");
                 ns.Logon(Type.Missing, Type.Missing, false, true);
-                dynamic inbox = ns.GetDefaultFolder(6);
+                inbox = ns.GetDefaultFolder(6);
                 try { unreadCount = (int)inbox.UnReadItemCount; } catch { unreadCount = 0; }
-                dynamic items = inbox.Items;
+                items = inbox.Items;
                 items.Sort("[ReceivedTime]", true);
 
                 int total = (int)items.Count;
                 int found = 0;
                 for (int i = 1; i <= Math.Min(total, 500); i++)
                 {
+                    dynamic? item = null;
                     try
                     {
-                        dynamic item = items[i];
+                        item = items[i];
                         int flagStatus = 0;
                         try { flagStatus = (int)item.FlagStatus; } catch { }
                         if (flagStatus == 2)
@@ -72,23 +89,39 @@ namespace NotificationWidget
                             results.Add(new FlaggedEmail(subject, sender, entryId, storeId));
                             if (++found >= 10) break;
                         }
-                        Marshal.ReleaseComObject(item);
                     }
                     catch { }
+                    finally
+                    {
+                        ReleaseComObjectSafe(item);
+                    }
                 }
-                Marshal.ReleaseComObject(items);
-                Marshal.ReleaseComObject(inbox);
-                Marshal.ReleaseComObject(ns);
             }
             catch (Exception ex)
             {
+                StartupPerfLog.Write($"GetInboxSummary failed ({ex.GetType().Name})");
                 results.Add(new FlaggedEmail("Error: " + ex.GetType().Name, ex.Message.Length > 60 ? ex.Message[..60] : ex.Message, "", ""));
             }
             finally
             {
-                if (outlook != null) try { Marshal.ReleaseComObject(outlook); } catch { }
+                ReleaseComObjectSafe(items);
+                ReleaseComObjectSafe(inbox);
+                ReleaseComObjectSafe(ns);
+                ReleaseComObjectSafe(outlook);
             }
             return new InboxSummary(results, unreadCount);
+        }
+
+        private static void ReleaseComObjectSafe(object? comObject)
+        {
+            if (comObject == null) return;
+            try
+            {
+                Marshal.ReleaseComObject(comObject);
+            }
+            catch
+            {
+            }
         }
     }
 }

@@ -11,6 +11,7 @@ taskkill /IM NotificationWidget.exe /F >nul 2>&1
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "FlaggedEmailsWidget" /f >nul 2>&1
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\FlaggedEmailsWidget" /f >nul 2>&1
 
+powershell.exe -NoProfile -Command "$desktop=[Environment]::GetFolderPath('Desktop'); $lnk=Join-Path $desktop 'Flagged Emails.lnk'; if (Test-Path $lnk) { Remove-Item $lnk -Force }" >nul 2>&1
 if exist "%DESKTOP_LNK%" del /f /q "%DESKTOP_LNK%"
 if exist "%START_MENU_LNK%" del /f /q "%START_MENU_LNK%"
 if exist "%START_MENU_DIR%" rmdir /s /q "%START_MENU_DIR%"

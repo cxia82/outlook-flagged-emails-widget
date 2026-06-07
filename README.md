@@ -25,6 +25,7 @@ A lightweight WPF desktop widget for Windows that displays your flagged Outlook 
 - 👤 **Sender + subject** — displays both sender name and email subject for each flagged item
 - ✂️ **Two-line subject wrap** — long subjects wrap to two lines with `...` ellipsis if truncated
 - 🔢 **Flag count in title** — window title shows `(N) Flagged Emails` at a glance
+- 📬 **Unread count in title** — title also shows total unread inbox count
 - 🖱️ **Click to open** — double-click any email to open it directly in Outlook
 - 🔄 **Auto-refresh** — refreshes every minute automatically
 - 📐 **Resizable & draggable** — resize by dragging any edge/corner; drag the title bar to reposition

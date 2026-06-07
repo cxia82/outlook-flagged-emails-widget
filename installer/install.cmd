@@ -24,7 +24,7 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "FlaggedEmailsWi
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\FlaggedEmailsWidget" /v "DisplayName" /t REG_SZ /d "Flagged Emails Widget" /f >nul
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\FlaggedEmailsWidget" /v "Publisher" /t REG_SZ /d "outlook-flagged-emails-widget" /f >nul
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\FlaggedEmailsWidget" /v "DisplayVersion" /t REG_SZ /d "1.0" /f >nul
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\FlaggedEmailsWidget" /v "DisplayVersion" /t REG_SZ /d "1.1" /f >nul
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\FlaggedEmailsWidget" /v "InstallLocation" /t REG_SZ /d "%INSTALL_DIR%" /f >nul
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\FlaggedEmailsWidget" /v "DisplayIcon" /t REG_SZ /d "%TARGET_EXE%" /f >nul
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\FlaggedEmailsWidget" /v "UninstallString" /t REG_SZ /d "\"%~dp0uninstall.cmd\"" /f >nul

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +14,13 @@ namespace NotificationWidget
         private readonly DispatcherTimer _refreshTimer = new();
         private bool _isRefreshing;
         private bool _firstRenderLogged;
+        private static readonly BlockingCollection<WorkItem> OutlookWorkQueue = new();
+        private static readonly Thread OutlookWorkerThread = CreateOutlookWorkerThread();
+
+        private sealed class WorkItem
+        {
+            public required TaskCompletionSource<InboxSummary> CompletionSource { get; init; }
+        }
 
         public MainWindow()
         {
@@ -73,24 +81,31 @@ namespace NotificationWidget
         private static Task<InboxSummary> GetInboxSummaryAsync()
         {
             var completionSource = new TaskCompletionSource<InboxSummary>();
+            OutlookWorkQueue.Add(new WorkItem { CompletionSource = completionSource });
+            return completionSource.Task;
+        }
 
+        private static Thread CreateOutlookWorkerThread()
+        {
             var thread = new Thread(() =>
             {
-                try
+                foreach (var workItem in OutlookWorkQueue.GetConsumingEnumerable())
                 {
-                    completionSource.SetResult(OutlookService.GetInboxSummary());
-                }
-                catch (Exception ex)
-                {
-                    completionSource.SetException(ex);
+                    try
+                    {
+                        workItem.CompletionSource.SetResult(OutlookService.GetInboxSummary());
+                    }
+                    catch (Exception ex)
+                    {
+                        workItem.CompletionSource.SetException(ex);
+                    }
                 }
             });
 
             thread.SetApartmentState(ApartmentState.STA);
             thread.IsBackground = true;
             thread.Start();
-
-            return completionSource.Task;
+            return thread;
         }
 
         private void TitleBar_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
