@@ -1,7 +1,8 @@
 using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace NotificationWidget
@@ -9,17 +10,14 @@ namespace NotificationWidget
     public partial class MainWindow : Window
     {
         private readonly DispatcherTimer _refreshTimer = new();
+        private bool _isRefreshing;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
-            if (File.Exists(iconPath))
-                Icon = BitmapFrame.Create(new Uri(iconPath, UriKind.Absolute));
-
             _refreshTimer.Interval = TimeSpan.FromMinutes(1);
-            _refreshTimer.Tick += (s, e) => RefreshFlaggedItems();
+            _refreshTimer.Tick += async (s, e) => await RefreshFlaggedItemsAsync();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -28,15 +26,19 @@ namespace NotificationWidget
             Left = workArea.Right - Width - 16;
             Top = workArea.Top + 16;
             Activate();
-            RefreshFlaggedItems();
+            StatusText.Text = "Loading flagged emails...";
+            _ = RefreshFlaggedItemsAsync();
             _refreshTimer.Start();
         }
 
-        private void RefreshFlaggedItems()
+        private async Task RefreshFlaggedItemsAsync()
         {
+            if (_isRefreshing) return;
+            _isRefreshing = true;
+
             try
             {
-                var flaggedItems = OutlookService.GetFlaggedEmails();
+                var flaggedItems = await GetFlaggedEmailsAsync();
                 int count = flaggedItems.Count;
                 FlaggedItemsList.ItemsSource = count > 0 ? flaggedItems : null;
                 TitleText.Text = count > 0 ? $"🚩 ({count}) Flagged Emails" : "🚩 Flagged Emails";
@@ -46,6 +48,33 @@ namespace NotificationWidget
             {
                 StatusText.Text = $"Error: {ex.Message}";
             }
+            finally
+            {
+                _isRefreshing = false;
+            }
+        }
+
+        private static Task<List<FlaggedEmail>> GetFlaggedEmailsAsync()
+        {
+            var completionSource = new TaskCompletionSource<List<FlaggedEmail>>();
+
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    completionSource.SetResult(OutlookService.GetFlaggedEmails());
+                }
+                catch (Exception ex)
+                {
+                    completionSource.SetException(ex);
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.IsBackground = true;
+            thread.Start();
+
+            return completionSource.Task;
         }
 
         private void TitleBar_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
