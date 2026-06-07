@@ -4,6 +4,8 @@ using System.Runtime.InteropServices;
 
 namespace NotificationWidget
 {
+    public record InboxSummary(List<FlaggedEmail> FlaggedEmails, int UnreadCount);
+
     public record FlaggedEmail(string Subject, string Sender, string EntryID, string StoreID);
 
     public static class OutlookService
@@ -24,18 +26,30 @@ namespace NotificationWidget
 
         public static List<FlaggedEmail> GetFlaggedEmails()
         {
+            return GetInboxSummary().FlaggedEmails;
+        }
+
+        public static int GetUnreadInboxCount()
+        {
+            return GetInboxSummary().UnreadCount;
+        }
+
+        public static InboxSummary GetInboxSummary()
+        {
             var results = new List<FlaggedEmail>();
+            int unreadCount = 0;
             dynamic? outlook = null;
             try
             {
                 var type = Type.GetTypeFromProgID("Outlook.Application");
-                if (type == null) return results;
+                if (type == null) return new InboxSummary(results, unreadCount);
 
                 outlook = Activator.CreateInstance(type);
-                if (outlook == null) return results;
+                if (outlook == null) return new InboxSummary(results, unreadCount);
                 dynamic ns = outlook.GetNamespace("MAPI");
                 ns.Logon(Type.Missing, Type.Missing, false, true);
                 dynamic inbox = ns.GetDefaultFolder(6);
+                try { unreadCount = (int)inbox.UnReadItemCount; } catch { unreadCount = 0; }
                 dynamic items = inbox.Items;
                 items.Sort("[ReceivedTime]", true);
 
@@ -74,7 +88,7 @@ namespace NotificationWidget
             {
                 if (outlook != null) try { Marshal.ReleaseComObject(outlook); } catch { }
             }
-            return results;
+            return new InboxSummary(results, unreadCount);
         }
     }
 }

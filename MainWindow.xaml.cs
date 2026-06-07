@@ -50,12 +50,14 @@ namespace NotificationWidget
 
             try
             {
-                var flaggedItems = await GetFlaggedEmailsAsync();
+                var summary = await GetInboxSummaryAsync();
+                var flaggedItems = summary.FlaggedEmails;
+                int unreadCount = summary.UnreadCount;
                 int count = flaggedItems.Count;
                 FlaggedItemsList.ItemsSource = count > 0 ? flaggedItems : null;
-                TitleText.Text = count > 0 ? $"🚩 ({count}) Flagged Emails" : "🚩 Flagged Emails";
+                TitleText.Text = $"🚩 ({count}) Flagged | 📬 {unreadCount} Unread";
                 StatusText.Text = count > 0 ? $"Updated {DateTime.Now:t}." : $"No flagged emails. Checked {DateTime.Now:t}.";
-                StartupPerfLog.Write($"Refresh complete in {refreshStopwatch.ElapsedMilliseconds}ms (items={count})");
+                StartupPerfLog.Write($"Refresh complete in {refreshStopwatch.ElapsedMilliseconds}ms (flagged={count}, unread={unreadCount})");
             }
             catch (Exception ex)
             {
@@ -68,15 +70,15 @@ namespace NotificationWidget
             }
         }
 
-        private static Task<List<FlaggedEmail>> GetFlaggedEmailsAsync()
+        private static Task<InboxSummary> GetInboxSummaryAsync()
         {
-            var completionSource = new TaskCompletionSource<List<FlaggedEmail>>();
+            var completionSource = new TaskCompletionSource<InboxSummary>();
 
             var thread = new Thread(() =>
             {
                 try
                 {
-                    completionSource.SetResult(OutlookService.GetFlaggedEmails());
+                    completionSource.SetResult(OutlookService.GetInboxSummary());
                 }
                 catch (Exception ex)
                 {
