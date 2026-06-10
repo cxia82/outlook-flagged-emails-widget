@@ -6,3 +6,6 @@ publish/
 .vs/
 debug.log
 *.log
+NotificationWidget.code-workspace
+installer/dist/
+installer/app/
