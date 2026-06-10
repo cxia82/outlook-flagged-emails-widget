@@ -11,33 +11,65 @@
         ResizeMode="CanResizeWithGrip"
         MinWidth="280" MinHeight="180"
         Width="380" Height="300"
-        Loaded="Window_Loaded">
+        Loaded="Window_Loaded"
+        PreviewMouseDown="Window_PreviewMouseDown">
     <Border Padding="14">
-        <DockPanel>
-            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" VerticalAlignment="Center"
-                        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown" Cursor="SizeAll">
-                <Ellipse Width="12" Height="12" Fill="#FF4CAF50" VerticalAlignment="Center"/>
-                <TextBlock x:Name="TitleText" Text="Flagged Emails" Margin="10,0,0,0" FontWeight="Bold" Foreground="White" FontSize="16" HorizontalAlignment="Left"/>
-                <Button x:Name="CloseButton" Click="CloseButton_Click" Margin="8,0,0,0" Background="Transparent" BorderThickness="0" Foreground="#FFDDDDDD" FontSize="18" Padding="8,0">&#x2715;</Button>
-            </StackPanel>
-            <TextBlock x:Name="StatusText" DockPanel.Dock="Bottom" Margin="0,8,0,0" Foreground="#FFAAAAAA" FontSize="11"/>
-            <ListBox x:Name="FlaggedItemsList" Margin="0,12,0,0" Foreground="#FFDDDDDD" Background="Transparent" BorderThickness="0"
-                     HorizontalContentAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto"
-                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" MouseDoubleClick="FlaggedItemsList_DoubleClick">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Margin="0,2,0,2">
-                            <local:TwoLineEllipsisTextBlock Text="{Binding Subject}" FontWeight="SemiBold" Foreground="White" FontSize="12"/>
-                            <TextBlock Text="{Binding Sender}" Foreground="#FFAAAAAA" FontSize="11" Margin="0,1,0,0"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </DockPanel>
+        <Grid>
+            <DockPanel>
+                <Grid DockPanel.Dock="Top" VerticalAlignment="Center" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown" Cursor="SizeAll">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Ellipse Grid.Column="0" Width="12" Height="12" Fill="#FF4CAF50" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TitleText" Grid.Column="1" Text="Flagged Emails" Margin="10,0,0,0" FontWeight="Bold" Foreground="White" FontSize="16" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis"/>
+                    </Grid>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                        <Button x:Name="RefreshButton" Click="RefreshButton_Click" ToolTip="Refresh now" Margin="0,0,2,0" Width="24" Height="24" Background="Transparent" BorderThickness="0" Foreground="#FFDDDDDD" FontSize="13" Padding="0">&#8635;</Button>
+                        <Button x:Name="SettingsButton" Click="SettingsButton_Click" ToolTip="Scan settings" Margin="0,0,2,0" Width="24" Height="24" Background="Transparent" BorderThickness="0" Foreground="#FFDDDDDD" FontSize="13" Padding="0">&#9881;</Button>
+                        <Button x:Name="CloseButton" Click="CloseButton_Click" ToolTip="Hide" Width="24" Height="24" Background="Transparent" BorderThickness="0" Foreground="#FFDDDDDD" FontSize="16" Padding="0">&#x2715;</Button>
+                    </StackPanel>
+                </Grid>
+                <TextBlock x:Name="StatusText" DockPanel.Dock="Bottom" Margin="0,8,0,0" Foreground="#FFAAAAAA" FontSize="11"/>
+                <ListBox x:Name="FlaggedItemsList" Margin="0,12,0,0" Foreground="#FFDDDDDD" Background="Transparent" BorderThickness="0"
+                         HorizontalContentAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" MouseDoubleClick="FlaggedItemsList_DoubleClick">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,2,0,2">
+                                <local:TwoLineEllipsisTextBlock Text="{Binding Subject}" FontWeight="SemiBold" Foreground="White" FontSize="12"/>
+                                <TextBlock Text="{Binding Sender}" Foreground="#FFAAAAAA" FontSize="11" Margin="0,1,0,0"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+            <Border x:Name="SettingsPanel" Width="0" HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                    Background="#EE1F1F1F" BorderBrush="#FF3A3A3A" BorderThickness="1" CornerRadius="6" Margin="0,0,0,22">
+                <StackPanel Margin="8,10,8,8">
+                    <TextBlock Text="Scan Range" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Text="Higher values can be slower." Margin="0,2,0,8" TextWrapping="Wrap" Foreground="#FFAAAAAA" FontSize="10"/>
+                    <ComboBox x:Name="ScanLimitCombo" Width="156" SelectedIndex="1" SelectionChanged="ScanLimitCombo_SelectionChanged">
+                        <ComboBoxItem Tag="500" Content="500 emails (fast)"/>
+                        <ComboBoxItem Tag="1000" Content="1000 emails (balanced)"/>
+                        <ComboBoxItem Tag="2000" Content="2000 emails (deeper scan)"/>
+                        <ComboBoxItem Tag="3000" Content="3000 emails (slowest)"/>
+                    </ComboBox>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Border>
 </Window>

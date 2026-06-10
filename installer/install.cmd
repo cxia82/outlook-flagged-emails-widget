@@ -21,6 +21,7 @@ if errorlevel 1 (
 )
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "FlaggedEmailsWidget" /t REG_SZ /d "\"%TARGET_EXE%\"" /f >nul
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run" /v "FlaggedEmailsWidget" /t REG_BINARY /d 020000000000000000000000 /f >nul 2>&1
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\FlaggedEmailsWidget" /v "DisplayName" /t REG_SZ /d "Flagged Emails Widget" /f >nul
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\FlaggedEmailsWidget" /v "Publisher" /t REG_SZ /d "outlook-flagged-emails-widget" /f >nul

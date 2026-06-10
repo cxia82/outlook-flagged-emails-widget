@@ -45,6 +45,8 @@ if (Test-Path $iconPath) { $startShortcut.IconLocation = "$iconPath,0" }
 $startShortcut.Save()
 
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "FlaggedEmailsWidget" -Value ('"' + $targetPath + '"')
+New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run" -Force | Out-Null
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run" -Name "FlaggedEmailsWidget" -Type Binary -Value ([byte[]](0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00))
 
 $uninstallKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\FlaggedEmailsWidget"
 New-Item -Path $uninstallKey -Force | Out-Null

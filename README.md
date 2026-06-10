@@ -16,12 +16,19 @@ A lightweight WPF desktop widget for Windows that displays your flagged Outlook 
 - ✅ **Faster perceived startup** — window appears quickly while Outlook refresh runs asynchronously.
 - ✅ **Rendering optimization** — reduced repeated text layout work in subject rendering.
 - ✅ **Operational logging** — added startup timing logs to help troubleshoot launch performance.
+- ✅ **Configurable scan depth** — choose how many recent inbox emails to scan (500/1000/2000/3000).
+- ✅ **Persistent settings** — selected scan depth is saved and restored on next launch.
+- ✅ **Manual refresh** — refresh immediately from the title-bar refresh button.
+- ✅ **Cleaner compact UI** — side settings panel, anchored top-right controls, and concise status line.
 
 ---
 
 ## Features
 
-- 🚩 **Flagged email list** — scans your 500 most recent inbox items and shows all actively flagged emails
+- 🚩 **Flagged email list** — scans recent inbox items and shows actively flagged emails
+- ⚙️ **Adjustable scan range** — choose 500 (fast), 1000 (balanced), 2000 (deeper), or 3000 (slowest)
+- 💾 **Scan preference persistence** — remembers your last selected scan range across restarts
+- 🔄 **Manual refresh button** — trigger an immediate sync at any time
 - 👤 **Sender + subject** — displays both sender name and email subject for each flagged item
 - ✂️ **Two-line subject wrap** — long subjects wrap to two lines with `...` ellipsis if truncated
 - 🔢 **Flag count in title** — window title shows `(N) Flagged Emails` at a glance
@@ -80,7 +87,7 @@ This package is ready to share with Windows users.
 
 ## How It Works
 
-The widget uses **COM late-binding** (`Type.GetTypeFromProgID("Outlook.Application")`) to connect to your already-running Outlook desktop app. It reads the default inbox, sorts items by received time (newest first), scans up to 500 items, and filters for `FlagStatus == 2` (actively flagged).
+The widget uses **COM late-binding** (`Type.GetTypeFromProgID("Outlook.Application")`) to connect to your already-running Outlook desktop app. It reads the default inbox, sorts items by received time (newest first), scans up to your selected limit (500/1000/2000/3000), and filters for `FlagStatus == 2` (actively flagged).
 
 No OAuth tokens, no Exchange credentials, and no Microsoft Graph API calls are needed.
 

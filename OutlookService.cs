@@ -47,10 +47,11 @@ namespace NotificationWidget
             return GetInboxSummary().UnreadCount;
         }
 
-        public static InboxSummary GetInboxSummary()
+        public static InboxSummary GetInboxSummary(int maxEmailsToCheck = 1000)
         {
             var results = new List<FlaggedEmail>();
             int unreadCount = 0;
+            int scanLimit = Math.Clamp(maxEmailsToCheck, 100, 5000);
             dynamic? outlook = null;
             dynamic? ns = null;
             dynamic? inbox = null;
@@ -71,7 +72,7 @@ namespace NotificationWidget
 
                 int total = (int)items.Count;
                 int found = 0;
-                for (int i = 1; i <= Math.Min(total, 500); i++)
+                for (int i = 1; i <= Math.Min(total, scanLimit); i++)
                 {
                     dynamic? item = null;
                     try
